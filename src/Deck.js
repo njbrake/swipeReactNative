@@ -18,7 +18,9 @@ class Deck extends React.Component {
 				console.log(gesture);
 				position.setValue({ x: gesture.dx, y: gesture.dy });
 			},
-			onPanResponderRelease: () => {},
+			onPanResponderRelease: () => {
+				this.resetPosition();
+			},
 		});
 		this.state = {
 			panResponder,
@@ -26,6 +28,11 @@ class Deck extends React.Component {
 		};
 	}
 
+	resetPosition() {
+		Animated.spring(this.state.position, {
+			toValue: { x: 0, y: 0 },
+		}).start();
+	}
 	getCardStyle() {
 		const { position } = this.state;
 		const rotate = position.x.interpolate({
