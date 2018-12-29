@@ -1,19 +1,62 @@
 import React from 'react';
-import { StyleSheet, View, Animated } from 'react-native';
+import {
+	StyleSheet,
+	View,
+	Animated,
+	PanResponder,
+	Dimensions,
+} from 'react-native';
 
+const screenWidth = Dimensions.get('window').width;
 class Deck extends React.Component {
-	componentWillMount() {}
+	constructor(props) {
+		super(props);
+		const position = new Animated.ValueXY();
+		const panResponder = PanResponder.create({
+			onStartShouldSetPanResponder: () => true,
+			onPanResponderMove: (e, gesture) => {
+				console.log(gesture);
+				position.setValue({ x: gesture.dx, y: gesture.dy });
+			},
+			onPanResponderRelease: () => {},
+		});
+		this.state = {
+			panResponder,
+			position,
+		};
+	}
+
+	getCardStyle() {
+		const { position } = this.state;
+		const rotate = position.x.interpolate({
+			inputRange: [-screenWidth * 1.5, 0, screenWidth * 1.5],
+			outputRange: ['-120deg', '0deg', '120deg'],
+		});
+		return {
+			...position.getLayout(),
+			transform: [{ rotate }],
+		};
+	}
+
+	renderCards() {
+		return this.props.data.map((item, index) => {
+			if (index === 0) {
+				return (
+					<Animated.View
+						key={index}
+						style={this.getCardStyle()}
+						{...this.state.panResponder.panHandlers}
+					>
+						{this.props.renderCard(item)}
+					</Animated.View>
+				);
+			}
+			return this.props.renderCard(item);
+		});
+	}
 	render() {
-		return (
-			<View style={}>
-				<View style={styles.container} />
-			</View>
-		);
+		return <Animated.View>{this.renderCards()}</Animated.View>;
 	}
 }
-
-const styles = StyleSheet.create({
-	container: {},
-});
 
 export default Deck;
